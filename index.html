@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Shoes Detection</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* CSS for the loader */
+        .loader-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            /* Semi-transparent black background */
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            /* Ensure the loader is on top of everything */
+        }
+
+        .loader {
+            border: 16px solid #f3f3f3;
+            /* Light grey */
+            border-top: 16px solid #df5b09;
+            /* Blue */
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            animation: spin 2s linear infinite;
+            /* Spin animation */
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        #uploaded {
+            display: none;
+        }
+
+        #annotated {
+            display: none;
+        }
+
+        #cropped {
+            display: none;
+        }
+
+        #bg_removed {
+            display: none;
+        }
+
+        #merged {
+            display: none;
+        }
+
+        #download {
+            display: none;
+        }
+
+        #template>img {
+            max-height: 768px !important;
+        }
+    </style>
+</head>
+
+<body onload="load()" class="overflow-x-hidden">
+    <!-- Loader container -->
+    <div class="loader-container" id="loader">
+        <div class="loader"></div>
+    </div>
+    <h1
+        class="w-full text-center mt-4 mb-4 text-4xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-6xl">
+        Shoes Detection</h1>
+    <div class="w-full flex justify-center content-center">
+        <div class="w-[90%] md:w-[500px] text-left bg-gray-100 p-5 rounded shadow">
+            <div>
+                <form method="post" action="/detect" enctype="multipart/form-data">
+                    <label class="block mb-2 text-sm font-medium text-gray-900" for="file_input">Select an Image</label>
+                    <input
+                        class="block w-full text-md p-2 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-50 dark:border-gray-300  border-2 border-gray-300 border-dashed"
+                        id="uploadInput" type="file" name="file">
+                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-300" id="file_input_help">PNG or JPG.</p>
+                    <!-- <button type="button" id="submit" class="focus:outline-none mt-4 float-right text-white bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:focus:ring-yellow-900">Detect</button> -->
+                    <button type="button" id="submit"
+                        class="mt-4 float-right text-white bg-gradient-to-br from-pink-500 to-orange-400 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">Process</button>
+                </form>
+            </div>
+
+            <!-- <div class="flex items-center justify-center w-full">
+                <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-400 hover:border-gray-600">
+                    <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                        <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+                        </svg>
+                        <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold">Click to upload</span> or drag and drop</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">SVG, PNG, JPG or GIF (MAX. 800x400px)</p>
+                    </div>
+                    <input id="dropzone-file" type="file" class="hidden"/>
+                </label>
+            </div>  -->
+        </div>
+    </div>
+    <br />
+    <div id="templates" class="grid grid-cols-3 gap-3"></div>
+    <br />
+    <hr />
+    <div class="w-full flex justify-center content-center grid md:grid-cols-2 mb-10">
+        <div class="h-auto border">
+            <h1
+                class="w-full text-center mt-4 mb-4 text-xl font-bold leading-none tracking-tight text-gray-900 md:text-xl lg:text-xl">
+                Uploaded Image</h1>
+            <canvas id="uploaded" class="h-auto p-10 max-h-[500px] max-w-full m-auto mb-2 mt-2"></canvas>
+        </div>
+        <div class="h-auto border">
+            <h1
+                class="w-full text-center mt-4 mb-4 text-xl font-bold leading-none tracking-tight text-gray-900 md:text-xl lg:text-xl">
+                Annotated Image</h1>
+            <canvas id="annotated" class="h-auto p-10 max-h-[500px] max-w-full m-auto mb-2 mt-2"></canvas>
+        </div>
+        <div class="h-auto border">
+            <h1
+                class="w-full text-center mt-4 mb-4 text-xl font-bold leading-none tracking-tight text-gray-900 md:text-xl lg:text-xl">
+                Cropped Image</h1>
+            <canvas id="cropped" class="h-auto p-10 max-h-[500px] max-w-full m-auto mb-2 mt-2"></canvas>
+        </div>
+        <div class="h-auto border">
+            <h1
+                class="w-full text-center mt-4 mb-4 text-xl font-bold leading-none tracking-tight text-gray-900 md:text-xl lg:text-xl">
+                Enhanced Image</h1>
+            <canvas id="bg_removed" class="h-auto p-10 max-h-[500px] max-w-full m-auto mb-2 mt-2"></canvas>
+        </div>
+        <div class="h-auto border relative">
+            <a type="button" id="download" download
+                class="text-gray-900 absolute right-5 top-3 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700">Download</a>
+            <h1
+                class="w-full text-center mt-4 mb-4 text-xl font-bold leading-none tracking-tight text-gray-900 md:text-xl lg:text-xl">
+                Merged Image</h1>
+            <canvas id="merged" class="h-auto p-10 max-h-[500px] max-w-full m-auto mb-2 mt-2"></canvas>
+            <!-- bg-gradient-to-r from-purple-500 to-pink-500 -->
+        </div>
+    </div>
+
+    <script>
+        // const appUrl = 'http://localhost:8080'
+        const appUrl = 'http://127.0.0.1:5000'
+
+        /**
+        * "Upload" button onClick handler: uploads selected 
+        * image file to backend, receives an array of
+        * detected objects and draws them on top of image
+        */
+        const input = document.getElementById("submit");
+        const fileInput = document.getElementById("uploadInput");
+        const loader = document.getElementById("loader");
+        const download = document.getElementById("download");
+        const templates = document.getElementById("templates");
+
+        const uploaded = document.getElementById("uploaded");
+        const annotated = document.getElementById("annotated");
+        const cropped = document.getElementById("cropped");
+        const bg_removed = document.getElementById("bg_removed");
+        const merged = document.getElementById("merged");
+
+        let selected_template = "";
+
+        input.addEventListener("click", async () => {
+            const file = fileInput.files[0];
+            if (!file) {
+                alert("Please select a file");
+                return
+            }
+
+            if (!selected_template) {
+                alert("Please select a template");
+                return
+            }
+
+            const filename = fileInput.value;
+            const extension = filename.split('.').pop();
+            loader.style.display = 'flex';
+            const data = new FormData();
+            data.append("file", file, "file");
+            data.append("extension", extension);
+            data.append("template", selected_template);
+            const response = await fetch("/detect", {
+                method: "post",
+                body: data
+            });
+            const responseData = await response.json();
+            console.log("responseData", responseData);
+            loader.style.display = 'none';
+            if (responseData.uploaded_image && responseData.annotated_image && responseData.cropped_image && responseData.bg_removed_image && responseData.merged_image) {
+                uploaded.style.display = 'block';
+                annotated.style.display = 'block';
+                cropped.style.display = 'block';
+                bg_removed.style.display = 'block';
+                merged.style.display = 'block';
+                download.style.display = 'block';
+                draw_uploaded_image(responseData.uploaded_image)
+                draw_annotated_image(responseData.annotated_image)
+                draw_cropped_image(responseData.cropped_image)
+                draw_bg_removed_image(responseData.bg_removed_image)
+                draw_merged_image(responseData.merged_image)
+            }
+            else if (responseData.message) {
+                fileInput.value = "";
+                alert(responseData.message)
+            }
+        })
+
+        function draw_uploaded_image(filename) {
+            const img = new Image()
+            let path = appUrl + "/uploaded/" + filename;
+            console.log("uploaded", path);
+            img.src = path;
+            img.onload = () => {
+                const canvas = document.getElementById("uploaded");
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0);
+            }
+        }
+
+        function draw_annotated_image(filename) {
+            const img = new Image()
+            let path = appUrl + "/annotated/" + filename;
+            console.log("annotated", path);
+            img.src = path;
+            img.onload = () => {
+                const canvas = document.getElementById("annotated");
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0);
+            }
+        }
+
+        function draw_cropped_image(filename) {
+            const img = new Image()
+            let path = appUrl + "/cropped/" + filename;
+            console.log("cropped", path);
+            img.src = path;
+            img.onload = () => {
+                const canvas = document.getElementById("cropped");
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0);
+            }
+        }
+
+        function draw_bg_removed_image(filename) {
+            const img = new Image()
+            let path = appUrl + "/bg_removed/" + filename;
+            console.log("bg_removed", path);
+            img.src = path;
+            img.onload = () => {
+                const canvas = document.getElementById("bg_removed");
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0);
+            }
+        }
+
+        function draw_merged_image(filename) {
+            const img = new Image()
+            let path = appUrl + "/merged/" + filename;
+            console.log("merged", path);
+            img.src = path;
+            download.setAttribute('href', path);
+            img.onload = () => {
+                const canvas = document.getElementById("merged");
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0);
+            }
+        }
+
+        function load() {
+            get_templates();
+        }
+
+        async function get_templates() {
+            const response = await fetch("/get_templetes", {
+                method: "get"
+            });
+            const responseData = await response.json();
+            console.log("responseData", responseData);
+            if (responseData.file_names.length > 0) {
+                let files = responseData.file_names;
+                for (let i = 0; i < files.length; i++) {
+                    var elem = document.createElement("img");
+                    elem.setAttribute("src", appUrl + "/template/" + files[i]);
+                    elem.setAttribute("height", "768");
+                    elem.setAttribute("width", "1024");
+                    elem.setAttribute("class", "templete-images h-[300px] w-auto m-auto rounded shadow cursor-pointer hover:shadow-lg");
+                    elem.setAttribute("alt", files[i]);
+                    elem.setAttribute("id", i);
+                    templates.appendChild(elem);
+
+                    var clickableElements = document.querySelectorAll('.templete-images');
+
+                    // Add click event listener to each element
+                    clickableElements.forEach(function (element) {
+                        element.addEventListener('click', function () {
+                            unselectAll();
+                            document.getElementById(this.id).style.border = "5px solid black";
+                            selected_template = this.alt.split(".")[0];
+                        });
+                    });
+                }
+            }
+        }
+
+        function unselectAll() {
+            let data = document.getElementsByClassName("templete-images");
+            for (let i = 0; i < data.length; i++) {
+                document.getElementById(data[i].id).style.border = "none";
+            }
+        }
+    </script>
+</body>
+
+</html>
