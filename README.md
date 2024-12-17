@@ -41,7 +41,7 @@ This project is a Flask application designed to process images by detecting shoe
 - **Python**: The programming language for backend logic.
 - **Flask**: The web framework for building the application.
 - **OpenCV**: For image processing and manipulation.
-- **TensorFlow/Keras** (or another library, depending on implementation): For shoe detection using pre-trained models.
+- **Google Cloud Vision**: For shoe detection model.
 - **HTML/CSS/JavaScript**: For creating the web interface.
 
 ---
@@ -51,7 +51,7 @@ This project is a Flask application designed to process images by detecting shoe
 1. **Clone the Repository**:
    ```bash
    git clone https://github.com/yourusername/shoe-detection-replacement.git
-   cd shoe-detection-replacement
+   cd demo-eusopht-org
    ```
 
 2. **Set Up a Virtual Environment**:
@@ -65,8 +65,8 @@ This project is a Flask application designed to process images by detecting shoe
    pip install -r requirements.txt
    ```
 
-4. **Download Pre-Trained Model**:
-   Place the pre-trained shoe detection model (e.g., `shoe_model.h5`) in the `models/` directory.
+4. **Also we have Pre-Trained Model For Shoe Detection **:
+   Shoe Detection Pre-Trained model is created by using roboflow and yolov8. It's place in the `models/` directory.
 
 5. **Run the Application**:
    ```bash
@@ -81,7 +81,7 @@ This project is a Flask application designed to process images by detecting shoe
 
 1. Navigate to the web interface in your browser.
 2. Upload an image containing shoes.
-3. Upload the replacement shoe image.
+3. Select an image from the following.
 4. Click "Process" to view and download the updated image.
 
 ---
@@ -89,7 +89,7 @@ This project is a Flask application designed to process images by detecting shoe
 ## Project Structure
 
 ```
-shoe-detection-replacement/
+shoe-detection/
 ├── app.py                  # Main Flask application
 ├── templates/              # HTML templates for the web interface
 ├── static/                 # Static files (CSS, JS, images)
@@ -113,14 +113,14 @@ shoe-detection-replacement/
 
 Here are some example use cases:
 
-### Input Image
-![Input Image](static/examples/input.jpg)
+### Annotated Image
+![Annotated Image](annotated_images/)
 
-### Replacement Shoe
-![Replacement Shoe](static/examples/replacement_shoe.jpg)
+### Background Removed Shoe
+![Background Shoe](bg_removed_images/)
 
-### Output Image
-![Output Image](static/examples/output.jpg)
+### Merge Image
+![Merge Shoe](merge_images/)
 
 ---
 
@@ -128,22 +128,6 @@ Here are some example use cases:
 
 - **Flask Server Not Starting**: Ensure all dependencies are installed and the virtual environment is activated.
 - **Model Not Found**: Verify that the model file exists in the `models/` directory.
-- **Image Processing Issues**: Check if the uploaded images meet the required format (e.g., JPEG/PNG).
+- **Image Processing Issues**: Check if the uploaded images meet the required format (e.g., JPG/JPEG/PNG).
 
 ---
-
-## Contributors
-
-- [Your Name](https://github.com/yourusername) - Project Lead
-- [Contributor Name](https://github.com/contributorusername) - Machine Learning Specialist
-- [Contributor Name](https://github.com/contributorusername) - Frontend Developer
-
----
-
-## License
-
-This project is licensed under the [MIT License](LICENSE).
-
----
-
-Feel free to customize or enhance this README file to better reflect your project.
