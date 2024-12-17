@@ -14,10 +14,7 @@ A Python Flask-based web application that detects shoes in an image and replaces
 - [Usage](#usage)
 - [Project Structure](#project-structure)
 - [Configuration](#configuration)
-- [Examples](#examples)
 - [Troubleshooting](#troubleshooting)
-- [Contributors](#contributors)
-- [License](#license)
 
 ---
 
@@ -50,14 +47,14 @@ This project is a Flask application designed to process images by detecting shoe
 
 1. **Clone the Repository**:
    ```bash
-   git clone https://github.com/yourusername/shoe-detection-replacement.git
+   git clone https://github.com/demo-eusopht-org/shoe-detection.git
    cd demo-eusopht-org
    ```
 
 2. **Set Up a Virtual Environment**:
    ```bash
    python -m venv venv
-   source venv/bin/activate   # On Windows: venv\Scripts\activate
+   venv\Scripts\activate     # On Windows: venv\Scripts\activate
    ```
 
 3. **Install Dependencies**:
@@ -109,18 +106,7 @@ shoe-detection/
 
 ---
 
-## Examples
 
-Here are some example use cases:
-
-### Annotated Image
-![Annotated Image](annotated_images/)
-
-### Background Removed Shoe
-![Background Shoe](bg_removed_images/)
-
-### Merge Image
-![Merge Shoe](merge_images/)
 
 ---
 

@@ -18,3 +18,4 @@ annotated_images/*.txt
 env/
 __pycache__/
 .venv/
+/venv/
